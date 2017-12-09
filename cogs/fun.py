@@ -68,7 +68,7 @@ class Fun:
 	@checks.is_owner()
 	@commands.command()
 	async def fuckboi(self, ctx, *, member: discord.Member = None):
-		"""Who's a fuckboi?"""
+		"""Call someone a fuckboi?"""
 		if member is None:
 			await ctx.send('Specify a user/member',  delete_after=15)
 			return
