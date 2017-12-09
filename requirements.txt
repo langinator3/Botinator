@@ -1,0 +1,24 @@
+git+https://github.com/Rapptz/discord.py@rewrite
+fuzzywuzzy
+python-levenshtein # optional
+asyncpg
+asyncio
+youtube_dl
+
+Create config.py
+
+py3 -m pip install
+
+Postgresql
+
+psql -U USERNAME DBNAME < create_db.sql
+psql -U USERNAME DBNAME < populate.sql
+
+Channels as followed:
+'role-assigning'	# For having the users assign themselves roles
+'pokemon'			# Pokemon portion of the bot
+'logs'				# Keeping track of your server
+'welcome'			# For welcome messages whenever a new member joins
+'music'				# For music commands (If music bot, not included disregard the channel)
+
+https://discordapp.com/oauth2/authorize?client_id=383867170037432330&scope=bot&permissions=871627903
