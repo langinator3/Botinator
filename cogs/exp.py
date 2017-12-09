@@ -129,7 +129,7 @@ class Exp(Menus):
 		# Shows your Guild level
 	@checks.db
 	@checks.no_delete
-	@commands.command(name='level', aliases=['lvl', 'exp', 'xp', 'prestige'])
+	@commands.command(name='level', aliases=['lvl', 'experience', 'exp', 'xp', 'prestige'])
 	@commands.guild_only()
 	async def experience(self, ctx, user: discord.Member = None):
 		"""Shows yours or another person's level."""
@@ -157,7 +157,7 @@ class Exp(Menus):
 
 		# Shows the Guild's EXP ranks
 	@checks.db
-	@commands.command(name='leaderboard', aliases=['ranking', 'lb', 'ranks'])
+	@commands.command(name='leaderboard', aliases=['ranking', 'rank', 'lb', 'ranks'])
 	@commands.guild_only()
 	async def rank(self, ctx):
 		"""Shows the EXP leaderboard."""
@@ -203,7 +203,7 @@ class Exp(Menus):
 		# Shows your Global level
 	@checks.db
 	@checks.no_delete
-	@commands.command(name='globallevel', aliases=['glvl', 'glevel', 'gexp', 'gxp', 'gprestige'])
+	@commands.command(name='globallevel', aliases=['glvl', 'glevel', 'gexperience', 'gexp', 'gxp', 'gprestige'])
 	async def gexperience(self, ctx, user: discord.Member = None):
 		"""Shows yours or another person's Global level."""
 		if user is None:
@@ -230,7 +230,7 @@ class Exp(Menus):
 
 		# Shows the Guild's EXP ranks
 	@checks.db
-	@commands.command(name='globalrank', aliases=['granking', 'gleaderboard', 'glb', 'granks'])
+	@commands.command(name='globalrank', aliases=['grank', 'granking', 'gleaderboard', 'glb', 'granks'])
 	async def grank(self, ctx):
 		"""Shows the Global EXP leaderboard."""
 		ordered = await ctx.con.fetch('''
