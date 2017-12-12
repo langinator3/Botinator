@@ -9,8 +9,6 @@ import discord
 
 from utils import checks
 
-fun_cooldown = 30
-
 class Fun:
 	def __init__(self, bot):
 		self.bot = bot
