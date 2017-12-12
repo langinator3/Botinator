@@ -20,21 +20,6 @@ sellout_cooldown = 7200
 class Welcome:
 	def __init__(self, bot):
 		self.bot = bot
-		self.cooldowns = {}
-		
-	def check_cd(self, guild):
-		if guild.id not in self.cooldowns:
-			self.cooldowns[guild.id] = {}
-		if guild.id in self.cooldowns[guild.id]:
-			if time.time() - self.cooldowns[guild.id][guild.id] < sellout_cooldown:
-				return False
-		return True
-		
-###################
-#                 #
-# WELCOME         #
-#                 #
-###################
 
 	def get_role_member(self, guild):
 		if guild is None:
