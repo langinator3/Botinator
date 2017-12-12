@@ -68,7 +68,7 @@ class Fun:
 	async def clap(self, ctx, *, member: discord.Member = None):
 		"""Congratulate another person"""
 		member = member or ctx.author
-		await ctx.send(f'Congrats!! :sun_with_face::clap:', member.name)
+		await ctx.send(f'Congrats!! :sun_with_face::clap:')
 		
 	@checks.db
 	@checks.no_delete
