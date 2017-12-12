@@ -4,7 +4,7 @@ Please understand that this software is currently in rapid testing.
 It could change/break at anytime. Use at your own discretion.
 
 LICENSE:
-Copyright (c) 2017 MysterialPy. mysterialpy@gmail.com
+Copyright (c) 2017 . mysterialpy@gmail.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,8 +40,8 @@ import uuid
 import youtube_dl
 
 from itertools import islice
-from utils import handler
-from utils import paginators
+from utils.handler import DownloadError
+from utils.paginators import SimplePaginator
 from utils import checks
 
 

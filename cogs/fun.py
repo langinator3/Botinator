@@ -29,7 +29,10 @@ class Fun:
 		if member is None:
 			await ctx.send('Specify a user to slap',  delete_after=15)
 			return
-		await ctx.send(f'**{member.name}**, you got slapped by **{ctx.message.author.name}**!')
+		elif member is ctx.author:
+			await ctx.send(f'**{member.name}... why tho?**')
+			return
+		await ctx.send(f'**{member.name}**, you got slapped by **{ctx.message.author.name}**! :rage::clap:')
 		
 		
 	@checks.db
@@ -39,6 +42,9 @@ class Fun:
 		"""Give someone a beer! 🍻 """
 		if member is None:
 			await ctx.send('Specify a user to give a beer',  delete_after=15)
+			return
+		elif member is ctx.author:
+			await ctx.send(f'**{member.name}**, drinking alone is the way to go!! :beer:')
 			return
 		await ctx.send(f'**{member.name}**, you got a :beer: from **{ctx.message.author.name}**!')
 		
@@ -51,6 +57,9 @@ class Fun:
 		if member is None:
 			await ctx.send('Specify a user to give a cookie',  delete_after=15)
 			return
+		elif member is ctx.author:
+			await ctx.send(f'Who needs to share cookies?? Not **{member.name}**!!\n:cookie: Om Nom Nom Nom :cookie:')
+			return
 		await ctx.send(f'**{member.name}**, you got a :cookie: from **{ctx.message.author.name}**!')
 		
 	@checks.db
@@ -58,11 +67,9 @@ class Fun:
 	@commands.command()
 	async def clap(self, ctx, *, member: discord.Member = None):
 		"""Congratulate another person"""
-		if member is None:
-			await ctx.send('Specify a user/member',  delete_after=15)
-			return
-		await ctx.send(f'**{member.name}**, congrats! :sun_with_face::clap:')
-	
+		member = member or ctx.author
+		await ctx.send(f'Congrats!! :sun_with_face::clap:', member.name)
+		
 	@checks.db
 	@checks.no_delete
 	@checks.is_owner()

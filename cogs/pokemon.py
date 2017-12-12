@@ -232,15 +232,16 @@ class Pokemon(Menus):
 	@checks.db
 	@commands.command(aliases=['inv'])
 	@pokechannel()
-	async def inventory(self, ctx):
+	async def inventory(self, ctx, *, member: discord.Member = None):
 		thumbnail = 'http://pokebot.xyz/botdata/images/misc/backpack.png'
 		"""Opens your inventory."""
-		player_data = await get_player(ctx, ctx.author.id)
+		member = member or ctx.author
+		player_data = await get_player(ctx, member.id)
 		inv = player_data['inventory']
 		all_items = await ctx.con.fetch('''
 			SELECT name FROM items ORDER BY id ASC
 			''')
-		em = discord.Embed(title=f'{ctx.author.name} | {inv["money"]}\ua750')
+		em = discord.Embed(title=f'{member.name} | {inv["money"]}\ua750')
 		items = []
 		for item in all_items[1:]:
 			if inv.get(item['name']) or item['name'].endswith('ball'):
@@ -578,7 +579,7 @@ class Pokemon(Menus):
 ###################
 
 	@checks.db
-	@commands.group(invoke_without_command=True)
+	@commands.group(invoke_without_command=True, aliases=['store'])
 	@pokechannel()
 	async def shop(self, ctx, multiple=1):
 		"""Allows you to buy more items."""

@@ -21,4 +21,4 @@ Channels as followed:
 'welcome'			# For welcome messages whenever a new member joins
 'music'				# For music commands (If music bot, not included disregard the channel)
 
-https://discordapp.com/oauth2/authorize?client_id=383867170037432330&scope=bot&permissions=871627903
+https://discordapp.com/api/oauth2/authorize?client_id=389843545277595658&permissions=871627903&scope=bot
