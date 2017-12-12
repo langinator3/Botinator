@@ -106,7 +106,5 @@ class Fun:
 		roll = randint(1, int(high))
 		await ctx.send(f'**{ctx.message.author.name}**, you rolled a {high}-sided :game_die: and got **{roll}**!')
 	
-	
-	
 def setup(bot):
 	bot.add_cog(Fun(bot))
