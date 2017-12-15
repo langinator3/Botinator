@@ -59,15 +59,7 @@ class Fun:
 			await ctx.send(f'Who needs to share cookies?? Not **{member.name}**!!\n:cookie: Om Nom Nom Nom :cookie:')
 			return
 		await ctx.send(f'**{member.name}**, you got a :cookie: from **{ctx.message.author.name}**!')
-		
-	@checks.db
-	@checks.no_delete
-	@commands.command()
-	async def clap(self, ctx, *, member: discord.Member = None):
-		"""Congratulate another person"""
-		member = member or ctx.author
-		await ctx.send(f'Congrats!! :sun_with_face::clap:')
-		
+			
 	@checks.db
 	@checks.no_delete
 	@checks.is_owner()
@@ -78,6 +70,17 @@ class Fun:
 			await ctx.send('Specify a user/member',  delete_after=15)
 			return
 		await ctx.send(f'**{member.name}**, why are you a fuckboi... :thinking:')
+	
+	@checks.db
+	@checks.no_delete
+	@checks.is_owner()
+	@commands.command(aliases=['school'])
+	async def education(self, ctx, *, member: discord.Member = None):
+		"""Education >> thots & hoes"""
+		if member is None:
+			await ctx.send('Specify a user/member',  delete_after=15)
+			return
+		await ctx.send(f'**{member.name}**, your schooling and education are more important!! :school:')
 		
 ###################
 #                 #
@@ -95,6 +98,25 @@ class Fun:
 		
 	@checks.db
 	@checks.no_delete
+	@commands.command(aliases=['doubt'])
+	async def x(self, ctx):
+		"""Press X to doubt"""
+		em = discord.Embed(colour=discord.Colour(0x6666CC))
+		em.set_author(name=str(ctx.message.author), icon_url=ctx.message.author.avatar_url)
+		em.set_image(url='https://i.imgur.com/AbUWe1d.png')
+		await ctx.send(embed=em)
+		
+	@checks.db
+	@checks.no_delete
+	@commands.command()
+	async def clap(self, ctx, *, member: discord.Member = None):
+		"""Congratulate another person"""
+		member = member or ctx.author
+		await ctx.send(f'Congrats!! :sun_with_face::clap:')
+		
+		
+	@checks.db
+	@checks.no_delete
 	@commands.command(aliases=['dice'])
 	async def roll(self, ctx, *, high: str='6'):
 		"""Rolls a number between the given range"""
@@ -103,6 +125,7 @@ class Fun:
 			return
 		roll = randint(1, int(high))
 		await ctx.send(f'**{ctx.message.author.name}**, you rolled a {high}-sided :game_die: and got **{roll}**!')
-	
+
+		
 def setup(bot):
 	bot.add_cog(Fun(bot))
