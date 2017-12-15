@@ -1,7 +1,7 @@
+import discord
 import asyncio
 
 from discord.ext import commands
-import discord
 
 from cogs.menus import Menus, ARROWS, CANCEL
 from utils.utils import wrap
@@ -81,7 +81,7 @@ class ROLES(Menus):
 		await ctx.send(say_temps[int(changed)].format(role=role_name), delete_after=20)
 
 	@rolechannel()
-	@commands.group(invoke_without_command=True)
+	@commands.group(invoke_without_command=True, aliases=['role'])
 	async def roles(self, ctx, *, game_name: str):
 		"""Adds you to a specified game role."""
 		await self.game_role_helper(ctx, ctx.author, game_name, True)
