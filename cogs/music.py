@@ -221,7 +221,7 @@ class MusicPlayer:
 		self.guild = ctx.guild
 		self.default_chan = ctx.channel
 		self.dj = None
-		self.volume = .2
+		self.volume = .05
 
 		self.waiting = None
 		self.now_playing = None
@@ -467,7 +467,9 @@ class Music:
 			The channel to join. If left empty, attempt to join the channel you currently in."""
 		channel = getattr(ctx.author.voice, 'channel', channel)
 		vc = ctx.guild.voice_client
-
+	#	if not self.voice.channel == None
+	#		if not player.dj:
+	#			return
 		if not channel:
 			return await ctx.send('No channel to join. Please either specify a valid channel or join one.')
 
@@ -615,7 +617,7 @@ class Music:
 			await player.paused_msg.edit(content=f'{ctx.author.mention} has resumed the song.', delete_after=15)
 
 	@rolechannel()
-	@commands.command(name='skip')
+	@commands.command(name='skip', aliases=['s'])
 	@commands.cooldown(5, 60, commands.BucketType.user)
 	async def skip_song(self, ctx):
 		"""Skip the current song."""
@@ -655,7 +657,7 @@ class Music:
 			return await ctx.send('I am not currently connected to voice.')
 
 		player = self.get_player(ctx)
-		adj = float(vol) / 100
+		adj = float(vol) / 400
 
 		try:
 			vc.source.volume = adj
@@ -946,7 +948,7 @@ class Music:
 
 	@rolechannel()
 	@_dj.command(name='change', aliases=['swap'])
-	@has_permissions_or_dj(manage_server=True)
+	@checks.mod()
 	@commands.cooldown(1, 120, commands.BucketType.guild)
 	async def swap_dj(self, ctx, *, member: discord.Member = None):
 		"""Change/Swap the DJ.
