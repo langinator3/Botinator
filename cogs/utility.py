@@ -1,5 +1,7 @@
 import datetime
+import time
 import asyncio
+import asyncpg
 import logging
 
 from discord.ext import commands
@@ -21,6 +23,13 @@ class Utility:
 
 	def __unload(self):
 		self.purge_task.cancel()
+		
+		
+		
+	def get_role_muted(self, guild):
+		if guild is None:
+			return None
+		return discord.utils.get(guild.roles, name='MUTED🔇')
 
 ###################
 #                 #
@@ -78,10 +87,7 @@ class Utility:
 		else:
 			content = message.content
 		description = f'{message.channel.mention}\n{content}'
-		em = discord.Embed(colour=discord.Colour.red(), description='**[MESSAGE DELETED]**\n' + description)
-		em.set_author(name=str(message.author), icon_url=message.author.avatar_url)
-		em.timestamp = datetime.datetime.utcnow()
-		await logging_channel.send(embed=em)
+		await self.log(discord.Colour.red(), '**[MESSAGE DELETED]**\n' + description, ctx.author)
 
 	async def on_message_edit(self, message, edit):
 		if message.author.bot or message.content == edit.content or \
@@ -112,9 +118,9 @@ class Utility:
 
 		# Blacklist Command
 	@checks.db
-	@commands.command()
-	@commands.is_owner()
-	async def plonk(self, ctx, user: discord.Member):
+	@checks.admin()
+	@commands.command(aliases=['mute'])
+	async def plonk(self, ctx, user: discord.Member, reason: str='being toxic'):
 		"""Adds a user to the bot's blacklist"""
 		try:
 			async with ctx.con.transaction():
@@ -122,15 +128,22 @@ class Utility:
 					INSERT INTO plonks (guild_id, user_id) VALUES ($1, $2)
 					''', ctx.guild.id, user.id)
 		except asyncpg.UniqueViolationError:
-			await ctx.send('User is already plonked.',  delete_after=60)
+			await ctx.send('**{0.name}** is already plonked.'.format(user),  delete_after=15)
 		else:
-			await ctx.send('User has been plonked.',  delete_after=60)
+			muted_role = self.get_role_muted(ctx.guild)
+			logging_channel = self.get_logging_channel(ctx.message)
+			if muted_role is not None:
+				await user.add_roles(muted_role)
+			await ctx.send('**{0.name}** has been plonked.'.format(user),  delete_after=30)
+			await self.log(discord.Colour(0xFF5733), "Plonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
 
+
+			
 		# Unblacklist Command
 	@checks.db
-	@commands.command()
-	@commands.is_owner()
-	async def unplonk(self, ctx, user: discord.Member):
+	@checks.admin()
+	@commands.command(aliases=['unmute'])
+	async def unplonk(self, ctx, user: discord.Member, reason: str='appeal'):
 		"""Removes a user from the bot's blacklist"""
 		async with ctx.con.transaction():
 			res = await ctx.con.execute('''
@@ -138,9 +151,14 @@ class Utility:
 				''', ctx.guild.id, user.id)
 		deleted = int(res.split()[-1])
 		if deleted:
-			await ctx.send('User is no longer plonked.',  delete_after=60)
+			muted_role = self.get_role_muted(ctx.guild)
+			logging_channel = self.get_logging_channel(ctx.message)
+			if muted_role is not None:
+				await user.remove_roles(muted_role)
+			await ctx.send('**{0.name}** is no longer plonked.'.format(user),  delete_after=30)
+			await self.log(discord.Colour(0x096b46), "Unplonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
 		else:
-			await ctx.send('User is not plonked.',  delete_after=60)
+			await ctx.send('**{0.name}** is not plonked.'.format(user),  delete_after=15)
 
 ###################
 #                 #
@@ -164,11 +182,7 @@ class Utility:
 				return m.id == ctx.message.id or m.author == user
 			try:
 				await ctx.channel.purge(limit=number + 1, check=is_user)
-				em = discord.Embed(colour=discord.Colour(0x6666CC))
-				em.description = "{0.name}({0.id}) deleted {1} messages made by {2.name}({2.id}) in channel {3}".format(ctx.author, number, user, ctx.channel.mention)
-				em.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
-				em.timestamp = datetime.datetime.utcnow()
-				await logging_channel.send(embed=em)
+				await self.log(discord.Colour(0x6666CC), "{0.name}({0.id}) deleted {1} messages made by {2.name}({2.id}) in channel {3}".format(ctx.author, number, user, ctx.channel.mention), ctx.author)
 				return
 			except discord.errors.Forbidden:
 				await ctx.send('I need permissions to manage messages in this channel.',  delete_after=120)
@@ -176,11 +190,7 @@ class Utility:
 		elif isinstance(number, int):
 			try:
 				await ctx.channel.purge(limit=number + 1, check=pin_check)
-				em = discord.Embed(colour=discord.Colour(0x6666CC))
-				em.description = "{}({}) deleted {} messages in channel {}".format(ctx.author.name, ctx.author.id, number, ctx.channel.mention)
-				em.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
-				em.timestamp = datetime.datetime.utcnow()
-				await logging_channel.send(embed=em)
+				await self.log(discord.Colour(0x6666CC), "{0.name}({0.id}) deleted {1} messages in channel {2}".format(ctx.author, number, ctx.channel.mention), ctx.author)
 				return
 			except discord.errors.Forbidden:
 				await ctx.send('I need permissions to manage messages in this channel.',  delete_after=120)
@@ -297,7 +307,7 @@ class Utility:
 		em.add_field(name='Join Date', value=user.joined_at.__format__('%A, %d. %B %Y @ %H:%M:%S'))
 		em.set_thumbnail(url=avi)
 		em.set_author(name=user, icon_url='https://i.imgur.com/RHagTDg.png')
-		await ctx.send(embed=em)
+		await ctx.send(embed=em, delete_after=60)
 
 		await ctx.message.delete()
 		
