@@ -221,7 +221,7 @@ class MusicPlayer:
 		self.guild = ctx.guild
 		self.default_chan = ctx.channel
 		self.dj = None
-		self.volume = .05
+		self.volume = .1 # Base volume set to 10%
 
 		self.waiting = None
 		self.now_playing = None
@@ -657,7 +657,7 @@ class Music:
 			return await ctx.send('I am not currently connected to voice.')
 
 		player = self.get_player(ctx)
-		adj = float(vol) / 400
+		adj = float(vol) / 400 # Max volume is actually 25% as to not ear rape anyone
 
 		try:
 			vc.source.volume = adj
