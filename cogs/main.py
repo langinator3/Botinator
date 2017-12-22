@@ -140,13 +140,13 @@ class Main:
 	@commands.command()
 	@commands.guild_only()
 	@checks.admin_or_permissions()
-	async def pay(self, ctx, member: discord.Member, amount: int):
+	async def pay(self, ctx, member: discord.Member, amount: int, total_add: int = 1):
 		"""Allows admins to give people points."""
 		await ctx.con.execute('''
-			INSERT INTO sellout (guild_id, user_id, current)
-			VALUES ($1, $2, $3) ON CONFLICT (guild_id, user_id) DO
-			UPDATE SET current = sellout.current + $3
-			''', ctx.guild.id, member.id, amount)
+			INSERT INTO sellout (guild_id, user_id, current, total)
+			VALUES ($1, $2, $3, $4) ON CONFLICT (guild_id, user_id) DO
+			UPDATE SET current = sellout.current + $3, total = sellout.total + $4
+			''', ctx.guild.id, member.id, amount, total_add)
 		await ctx.send(f'**{member.name}** has been given {amount} points.', delete_after=60)
 
 
