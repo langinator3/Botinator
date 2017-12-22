@@ -131,11 +131,21 @@ class Exp(Menus):
 	@checks.no_delete
 	@commands.command(name='level', aliases=['lvl', 'experience', 'exp', 'xp', 'prestige'])
 	@commands.guild_only()
-	async def experience(self, ctx, user: discord.Member = None):
+	async def experience(self, ctx, name=""):
 		"""Shows yours or another person's level."""
-		if user is None:
-			user = ctx.author
-		name = user.name
+		if name:
+			try:
+				user = ctx.message.mentions[0]
+			except IndexError:
+				user = ctx.guild.get_member_named(name)
+			if not user:
+				user = ctx.guild.get_member(int(name))
+			if not user:
+				await ctx.send(self.bot.bot_prefix + 'Could not find user.')
+				return
+		else:
+			user = ctx.message.author
+
 		rec = await ctx.con.fetchrow('''
 			SELECT exp, total, level, prestige FROM experience WHERE user_id = $1 AND guild_id = $2
 			''', user.id, ctx.guild.id) or {'exp': 0, 'total': 0, 'level': 0, 'prestige': 0}
@@ -204,11 +214,21 @@ class Exp(Menus):
 	@checks.db
 	@checks.no_delete
 	@commands.command(name='globallevel', aliases=['glvl', 'glevel', 'gexperience', 'gexp', 'gxp', 'gprestige'])
-	async def gexperience(self, ctx, user: discord.Member = None):
+	async def gexperience(self, ctx, name=""):
 		"""Shows yours or another person's Global level."""
-		if user is None:
-			user = ctx.author
-		name = user.name
+		if name:
+			try:
+				user = ctx.message.mentions[0]
+			except IndexError:
+				user = ctx.guild.get_member_named(name)
+			if not user:
+				user = ctx.guild.get_member(int(name))
+			if not user:
+				await ctx.send(self.bot.bot_prefix + 'Could not find user.')
+				return
+		else:
+			user = ctx.message.author
+
 		rec = await ctx.con.fetchrow('''
 			SELECT exp, total, level, prestige FROM g_experience WHERE user_id = $1
 			''', user.id) or {'exp': 0, 'total': 0, 'level': 0, 'prestige': 0}
