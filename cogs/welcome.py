@@ -1,4 +1,5 @@
 import asyncio
+import asyncpg
 
 import datetime
 import time
@@ -10,12 +11,14 @@ from utils import checks
 
 sellout_cooldown = 7200
 
+class MutedUser(Exception):
+	pass
+
 ###################
 #                 #
 # WELCOME         #
 #                 #
 ###################
-
 
 class Welcome:
 	def __init__(self, bot):
@@ -25,7 +28,12 @@ class Welcome:
 		if guild is None:
 			return None
 		return discord.utils.get(guild.roles, name='Member')
-
+		
+	def get_role_muted(self, guild):
+		if guild is None:
+			return None
+		return discord.utils.get(guild.roles, name='MUTED🔇')
+		
 	async def get_welcome_channel(self, guild, *, channel_id=None, con=None):
 		if guild is None:
 			return None
@@ -37,6 +45,11 @@ class Welcome:
 		if channel_id:
 			channel = discord.utils.get(guild.channels, id=channel_id)
 		return channel or discord.utils.get(guild.channels, name='welcome')
+
+	def get_logging_channel(self, ctx):
+		if ctx.guild is None:
+			return None
+		return discord.utils.get(ctx.guild.channels, name='logs')
 
 		# Welcome Main Command
 	@checks.db
@@ -122,15 +135,33 @@ class Welcome:
 		async with self.bot.db_pool.acquire() as con:
 			settings = await con.fetchrow('''
 				SELECT * FROM greetings WHERE guild_id = $1
-				''', guild.id)
+				''', guild.id)		
 		channel = await self.get_welcome_channel(guild, channel_id=settings['channel_id'])
+		logging_channel = self.get_logging_channel(member)
 		member_role = self.get_role_member(guild)
+		muted_role = self.get_role_muted(guild)
 		if not settings['enabled']:
 			return
-		if channel is not None:
-			await channel.send(settings['message'].format(member, guild))
 		if member_role is not None:
 			await member.add_roles(member_role)
+		async with self.bot.db_pool.acquire() as con:
+			plonk = await con.fetchrow('''
+				SELECT * FROM plonks WHERE user_id = $1 AND guild_id = $2
+				''',  member.id, guild.id)
+		try:
+			if plonk['user_id'] is not None:
+				if muted_role is not None:
+					await member.add_roles(muted_role)
+				if channel is not None:
+					await channel.send(settings['message'].format(member, guild) + "\nYou have been muted again :wink:")
+				em = discord.Embed(colour=discord.Colour(0xA70117))
+				em.description = "{0.name}({0.id}) has been plonked... Again -_- ".format(member)
+				em.set_author(name=str(member), icon_url=member.avatar_url)
+				em.timestamp = datetime.datetime.utcnow()
+				await logging_channel.send(embed=em)
+		except:
+			if channel is not None:
+				await channel.send(settings['message'].format(member, guild))
 
 	async def send_testing_msg(self, ctx):
 		guild = ctx.guild
