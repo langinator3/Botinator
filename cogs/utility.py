@@ -18,7 +18,8 @@ class Utility:
 	def __init__(self, bot):
 		self.bot = bot
 		self.purge_task = self.bot.loop.create_task(self.purge())
-		self.log_ignore = ['pokemon', 'role-assigning']
+		self.log_ignore = ['pokemon', 'role-assigning', 'music', 'welcome']
+		self.purge_ignore = ['logs']
 		self.attachment_cache = {}
 
 	def __unload(self):
@@ -69,26 +70,29 @@ class Utility:
 
 	async def on_member_remove(self, member):
 		await self.log(discord.Colour(0x5b0506), '**[USER LEAVE]**', member)
-
+		
 	async def on_message_delete(self, message):
 		if message.channel.name in self.log_ignore or await self.bot.is_command(message):
 			return
 		logging_channel = self.get_logging_channel(message)
-		if message.author.bot:
-			return
+		content = message.content
 		if message.channel.id == logging_channel.id:
-			em = discord.Embed.from_data(message.embeds[0])
-			await logging_channel.send('Ping')
-			await logging_channel.send('Someone deleted this!', embed=em)
-			return
-		if not message.content and message.attachments:
-			content = 'Attachments:'
-			content += '\n'.join('{0.filename} {0.url}'.format(attach) for attach in message.attachments)
+			try:
+				em = message.embeds[0]
+			except:
+				em = None
+			await logging_channel.send(':x: **[LOG DELETED]**\n*{0}*\n{1}'.format(datetime.datetime.utcnow(), content), embed=em)
 		else:
-			content = message.content
-		description = f'{message.channel.mention}\n{content}'
-		await self.log(discord.Colour.red(), '**[MESSAGE DELETED]**\n' + description, ctx.author)
-
+			try:
+				attach = message.attachments[0]
+			except:
+				attach = None
+			content += '\n**Attachments:**\n{0.filename} {0.url}'.format(attach)
+			description = ':x: **[MESSAGE DELETED]**\n{0}\n{1}'.format(message.channel.mention, content)
+			await self.log(discord.Colour.red(), description, message.author)
+		if message.author.bot:
+			pass
+		
 	async def on_message_edit(self, message, edit):
 		if message.author.bot or message.content == edit.content or \
 				message.channel.name in self.log_ignore:
@@ -169,12 +173,11 @@ class Utility:
 		# Cleanup Messages Command
 	@commands.command(invoke_without_command=True, aliases=['clean', 'delete', 'del'])
 	@checks.mod_or_permissions(manage_messages=True)
-	async def cleanup(self, ctx, number: int = None, *, user: discord.Member = None):
-		"""Deletes last X messages (user)."""
-		logging_channel = self.get_logging_channel(ctx.message)
-		if number is None:
-			await ctx.send('Specify a number of messages to remove.',  delete_after=30)
+	async def cleanup(self, ctx, number: int = 1, *, user: discord.Member = None):
+		"""Deletes last X messages [user]."""
+		if ctx.message.channel.name in self.purge_ignore:
 			return
+		logging_channel = self.get_logging_channel(ctx.message)
 		if number < 1:
 			number = 1
 		elif isinstance(user, discord.Member):
@@ -254,7 +257,7 @@ class Utility:
 		# Sets the playing feature of the bot
 	@commands.command()
 	@checks.admin_or_permissions(administrator=True)
-	async def setplaying(self, ctx, *, status: str):
+	async def setplaying(self, ctx, *, status: str = '#PMA'):
 		"""Sets the 'Playing' message for the bot."""
 		await self.bot.change_presence(game=discord.Game(name=status))
 
