@@ -643,7 +643,7 @@ class Music:
 			return await ctx.send('**Vote to skip has passed...** Skipping the song!', delete_after=10)
 
 	@rolechannel()
-	@commands.command(name='volume', aliases=['vol'])
+	@commands.command(name='volume', aliases=['vol', 'v'])
 	@commands.cooldown(5, 30, commands.BucketType.user)
 	async def adjust_volume(self, ctx, *, vol: int):
 		"""Adjust the player volume."""
@@ -879,7 +879,7 @@ class Music:
 
 	@rolechannel()
 	@checks.mod()
-	@commands.command(name='fstop', aliases=['kill', 'destroy'], hidden=True)
+	@commands.command(name='fstop', aliases=['kill', 'destroy', 'leave'], hidden=True)
 	async def force_stop(self, ctx):
 		errors = []
 		player = self.get_player(ctx)
