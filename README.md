@@ -1,8 +1,6 @@
-![intro]
+# Botinator
 
-# Bird-Bot
-
-[![Discord](https://img.shields.io/badge/discord-join%20us-brightgreen.svg)](https://discord.gg/CyrPMJA) 
+[![Discord](https://img.shields.io/badge/discord-join%20us-brightgreen.svg)](https://discord.gg/5qbAjqT) 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]LICENSE
 
 ## Authors
