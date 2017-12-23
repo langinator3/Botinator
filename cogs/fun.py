@@ -104,7 +104,7 @@ class Fun:
 		em = discord.Embed(colour=discord.Colour(0x6666CC))
 		em.set_author(name=str(ctx.message.author), icon_url=ctx.message.author.avatar_url)
 		em.set_image(url='https://i.imgur.com/AbUWe1d.png')
-		await ctx.send(embed=em)
+		await ctx.send(f'**{ctx.message.author.name}** has pressed X to doubt', embed=em)
 		
 	@checks.db
 	@checks.no_delete
@@ -112,7 +112,7 @@ class Fun:
 	async def clap(self, ctx, *, member: discord.Member = None):
 		"""Congratulate another person"""
 		member = member or ctx.author
-		await ctx.send(f'Congrats!! :sun_with_face::clap:')
+		await ctx.send(':sun_with_face::clap:')
 		
 		
 	@checks.db
