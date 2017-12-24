@@ -153,7 +153,7 @@ class Exp(Menus):
 		to_next_level = level_req(level + 1)
 		thumbnail = f'http://pokebot.xyz/static/img/prestige/P{prestige}.png'
 		embed = discord.Embed(colour=0xffffff)
-		embed.set_author(name=name, icon_url=user.avatar_url)
+		embed.set_author(name=user.name, icon_url=user.avatar_url)
 		embed.set_thumbnail(url=thumbnail)
 		embed.add_field(name='LEVEL', value=level)
 		embed.add_field(name='EXP', value=f'{exp}/{to_next_level} (tot. {total})')
@@ -236,7 +236,7 @@ class Exp(Menus):
 		to_next_level = level_req(level + 1)
 		thumbnail = f'http://pokebot.xyz/static/img/prestige/P{prestige}.png'
 		embed = discord.Embed(colour=0xffffff)
-		embed.set_author(name=name, icon_url=user.avatar_url)
+		embed.set_author(name=user.name, icon_url=user.avatar_url)
 		embed.set_thumbnail(url=thumbnail)
 		embed.add_field(name='GLOBAL LEVEL', value=level)
 		embed.add_field(name='GLOBAL EXP', value=f'{exp}/{to_next_level} (tot. {total})')
