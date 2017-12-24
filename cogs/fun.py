@@ -9,6 +9,11 @@ import discord
 
 from utils import checks
 
+MEMES = {
+	"intellectual": "https://cdn.discordapp.com/attachments/383490727180500993/386383095554768896/unknown-2.png",
+	"thottie": "H O T T I E L I K E A T H O T T I E"
+}
+
 class Fun:
 	def __init__(self, bot):
 		self.bot = bot
@@ -112,6 +117,7 @@ class Fun:
 	async def clap(self, ctx, *, member: discord.Member = None):
 		"""Congratulate another person"""
 		member = member or ctx.author
+
 		await ctx.send(':sun_with_face::clap:')
 		
 		
@@ -125,6 +131,16 @@ class Fun:
 			return
 		roll = randint(1, int(high))
 		await ctx.send(f'**{ctx.message.author.name}**, you rolled a {high}-sided :game_die: and got **{roll}**!')
+
+	@checks.db
+	@checks.no_delete
+	async def meme(self, ctx, *, meme_str: str = 'list'):
+		if meme_str == 'list':
+			result = "Available memes: " + ', '.join(MEMES.keys())
+		else:
+			result = MEMES.get(meme_str, meme_str + " is not a meme")
+		
+		await ctx.send(result)
 
 		
 def setup(bot):
