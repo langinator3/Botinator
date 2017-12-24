@@ -84,10 +84,15 @@ class Utility:
 			await logging_channel.send(':x: **[LOG DELETED]**\n*{0}*\n{1}'.format(datetime.datetime.utcnow(), content), embed=em)
 		else:
 			try:
-				attach = message.attachments[0]
+				em = message.embeds[0]
+				content += '\n__*Embed message*__'
 			except:
-				attach = None
-			content += '\n**Attachments:**\n{0.filename} {0.url}'.format(attach)
+				pass
+			try:
+				attach = message.attachments[0]
+				content += '\n**Attachments:**\n{0.filename} {0.url}'.format(attach)
+			except:
+				pass
 			description = ':x: **[MESSAGE DELETED]**\n{0}\n{1}'.format(message.channel.mention, content)
 			await self.log(discord.Colour.red(), description, message.author)
 		if message.author.bot:
