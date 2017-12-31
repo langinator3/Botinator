@@ -8,7 +8,7 @@ from discord.ext import commands
 import discord
 
 from utils import checks
-
+import config
 
 def pin_check(m):
 	return not m.pinned
@@ -18,7 +18,7 @@ class Utility:
 	def __init__(self, bot):
 		self.bot = bot
 		self.purge_task = self.bot.loop.create_task(self.purge())
-		self.log_ignore = ['pokemon', 'role-assigning', 'music', 'welcome']
+		self.log_ignore = ['pokemon', 'role-assigning', 'music', 'welcome', 'testing']
 		self.purge_ignore = ['logs']
 		self.attachment_cache = {}
 
@@ -128,8 +128,8 @@ class Utility:
 		# Blacklist Command
 	@checks.db
 	@checks.admin()
-	@commands.command(aliases=['mute'])
-	async def plonk(self, ctx, user: discord.Member, reason: str='being toxic'):
+	@commands.command(name='mute', aliases=['cuck', 'fuck', 'plonk'])
+	async def user_plonk(self, ctx, user: discord.Member, reason: str='being toxic'):
 		"""Adds a user to the bot's blacklist"""
 		try:
 			async with ctx.con.transaction():
@@ -143,7 +143,7 @@ class Utility:
 			logging_channel = self.get_logging_channel(ctx.message)
 			if muted_role is not None:
 				await user.add_roles(muted_role)
-			await ctx.send('**{0.name}** has been plonked.'.format(user),  delete_after=30)
+			await ctx.send('**{0.mention}** has been plonked.'.format(user))
 			await self.log(discord.Colour(0xFF5733), "Plonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
 
 
@@ -151,8 +151,8 @@ class Utility:
 		# Unblacklist Command
 	@checks.db
 	@checks.admin()
-	@commands.command(aliases=['unmute'])
-	async def unplonk(self, ctx, user: discord.Member, reason: str='appeal'):
+	@commands.command(name='unmute', aliases=['uncuck', 'unfuck', 'unplonk'])
+	async def user_unplonk(self, ctx, user: discord.Member, reason: str='appeal'):
 		"""Removes a user from the bot's blacklist"""
 		async with ctx.con.transaction():
 			res = await ctx.con.execute('''
@@ -164,7 +164,7 @@ class Utility:
 			logging_channel = self.get_logging_channel(ctx.message)
 			if muted_role is not None:
 				await user.remove_roles(muted_role)
-			await ctx.send('**{0.name}** is no longer plonked.'.format(user),  delete_after=30)
+			await ctx.send('**{0.mention}** is no longer plonked.'.format(user))
 			await self.log(discord.Colour(0x096b46), "Unplonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
 		else:
 			await ctx.send('**{0.name}** is not plonked.'.format(user),  delete_after=15)
@@ -176,11 +176,11 @@ class Utility:
 ###################
 
 		# Cleanup Messages Command
-	@commands.command(invoke_without_command=True, aliases=['clean', 'delete', 'del'])
+	@commands.command(invoke_without_command=True, name='purge', aliases=['clean', 'cleanup', 'delete', 'del'])
 	@checks.mod_or_permissions(manage_messages=True)
-	async def cleanup(self, ctx, number: int = 1, *, user: discord.Member = None):
+	async def messages_cleaner(self, ctx, number: int = 1, *, user: discord.Member = None):
 		"""Deletes last X messages [user]."""
-		if ctx.message.channel.name in self.purge_ignore:
+		if ctx.message.channel.name in self.purge_ignore and not ctx.message.author.id in config.owner_ids:
 			return
 		logging_channel = self.get_logging_channel(ctx.message)
 		if number < 1:
@@ -210,9 +210,9 @@ class Utility:
 #                 #
 ###################
 
-	@commands.command(hidden=True)
+	@commands.command(hidden=True, name='reload')
 	@commands.is_owner()
-	async def reload(self, ctx, *, ext):
+	async def reloader(self, ctx, *, ext):
 		"""Reload a cog."""
 		if not ext.startswith('cogs.'):
 			ext = f'cogs.{ext}'
@@ -227,9 +227,9 @@ class Utility:
 		else:
 			await ctx.send(f'Cog {ext} reloaded.',  delete_after=60)
 
-	@commands.command(hidden=True)
+	@commands.command(hidden=True, name='load')
 	@commands.is_owner()
-	async def load(self, ctx, *, ext):
+	async def loader(self, ctx, *, ext):
 		"""Load a cog."""
 		if not ext.startswith('cogs.'):
 			ext = f'cogs.{ext}'
@@ -240,9 +240,9 @@ class Utility:
 		else:
 			await ctx.send(f'Cog {ext} loaded.',  delete_after=60)
 
-	@commands.command(hidden=True)
+	@commands.command(hidden=True, name='unload')
 	@commands.is_owner()
-	async def unload(self, ctx, *, ext):
+	async def unloader(self, ctx, *, ext):
 		"""Unload a cog."""
 		if not ext.startswith('cogs.'):
 			ext = f'cogs.{ext}'
@@ -260,29 +260,29 @@ class Utility:
 ###################
 
 		# Sets the playing feature of the bot
-	@commands.command()
+	@commands.command(name='setplaying')
 	@checks.admin_or_permissions(administrator=True)
-	async def setplaying(self, ctx, *, status: str = '#PMA'):
+	async def set_playing(self, ctx, *, status: str = '#PMA'):
 		"""Sets the 'Playing' message for the bot."""
 		await self.bot.change_presence(game=discord.Game(name=status))
 
 		# Shows Uptime of the Server
-	@commands.command()
-	async def uptime(self, ctx):
+	@commands.command(name='uptime')
+	async def bot_uptime(self, ctx):
 		"""Shows the bots uptime"""
 		up = abs(self.bot.uptime - int(time.perf_counter()))
 		up = datetime.timedelta(seconds=up)
 		await ctx.send(f'`Uptime: {up}`', delete_after=60)
 
-	@commands.command(invoke_without_command=True, aliases=['user', 'uinfo', 'info', 'ui'])
-	async def userinfo(self, ctx, *, name=""):
+	@commands.command(invoke_without_command=True, name='userinfo' , aliases=['user', 'uinfo', 'info', 'ui'])
+	async def user_info(self, ctx, *, name=""):
 		"""Get user info. Ex: [p]info @user"""
 		if name:
 			try:
 				user = ctx.message.mentions[0]
 			except IndexError:
 				user = ctx.guild.get_member_named(name)
-			if not user:
+			if not user and name.isdigit():
 				user = ctx.guild.get_member(int(name))
 			if not user:
 				await ctx.send(self.bot.bot_prefix + 'Could not find user.')
