@@ -56,12 +56,6 @@ class BirbBot(commands.Bot):
 			cmd = cmd.parent
 		await ctx.invoke(self.get_command('help'), *cmds)
 	
-	
-	
-	 
-	
-	
-	
 	async def on_ready(self):
 		if not hasattr(self, 'uptime'):
 			self.uptime = int(time.perf_counter())
@@ -119,13 +113,14 @@ class BirbBot(commands.Bot):
 formatter = commands.HelpFormatter(show_check_failure=True)
 
 initial_extensions = [f'cogs.{ext}' for ext in
-					('main', 'fun', 'utility', 'exp', 'pokemon', 'music', 'roles', 'welcome')]
+					('main', 'fun', 'utility', 'exp', 'pokemon', 'music', 'roles', 'poll', 'welcome', 'help')]
 
 #  Description
 description = 'Birb Bot - Created by Langinator3.'
 
 # Prefix
-bot = BirbBot(command_prefix=['!'], description=description, formatter=formatter, request_offline_members=True)
+bot = BirbBot(command_prefix=config.cmd_prefix, description=description, formatter=formatter, request_offline_members=True)
+bot.bot_prefix = config.bot_identifier
 bot.ready = False
 bot.db_pool = bot.loop.run_until_complete(asyncpg.create_pool(config.dsn, init=set_codecs))
 
