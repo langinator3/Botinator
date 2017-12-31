@@ -120,9 +120,9 @@ class Main:
 		
 		# Balance Command
 	@checks.db
-	@commands.command(aliases=['bal'])
+	@commands.command(name='balance', aliases=['bal', 'bank'])
 	@commands.guild_only()
-	async def balance(self, ctx, user: discord.Member = None):
+	async def points(self, ctx, user: discord.Member = None):
 		"""See how many points you have."""
 		if user is None:
 			user = ctx.author
