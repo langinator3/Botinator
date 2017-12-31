@@ -10,8 +10,10 @@ import discord
 from utils import checks
 
 MEMES = {
-	"intellectual": "https://cdn.discordapp.com/attachments/383490727180500993/386383095554768896/unknown-2.png",
-	"thottie": "H O T T I E L I K E A T H O T T I E"
+	"intellectual": "https://cdn.discordapp.com/attachments/386029171303776257/386379713431470081/unknown-2.png",
+	"bestdad": "https://cdn.discordapp.com/attachments/386029171303776257/386382834782306306/Screen_Shot_2017-12-01_at_9.07.06_PM.png",
+	"thottie": "H O T T I E L I K E A T H O T T I E",
+	"test": "tested"
 }
 
 class Fun:
@@ -134,13 +136,22 @@ class Fun:
 
 	@checks.db
 	@checks.no_delete
+	@commands.command(aliases=['memes'])
 	async def meme(self, ctx, *, meme_str: str = 'list'):
+		"""Don't let your memes be dreams"""
 		if meme_str == 'list':
 			result = "Available memes: " + ', '.join(MEMES.keys())
 		else:
 			result = MEMES.get(meme_str, meme_str + " is not a meme")
 		
-		await ctx.send(result)
+		em = discord.Embed(colour=discord.Colour(0x6666CC))
+		em.set_author(name=str(ctx.message.author), icon_url=ctx.message.author.avatar_url)
+		try:
+			em.set_image(url=result)
+			await ctx.send('', embed=em)
+		except:
+			await ctx.send(result)
+
 
 		
 def setup(bot):
