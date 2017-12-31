@@ -32,7 +32,7 @@ class Welcome:
 	def get_role_muted(self, guild):
 		if guild is None:
 			return None
-		return discord.utils.get(guild.roles, name='MUTED🔇')
+		return discord.utils.get(guild.roles, name='MUTED')
 		
 	async def get_welcome_channel(self, guild, *, channel_id=None, con=None):
 		if guild is None:
@@ -76,8 +76,8 @@ class Welcome:
 		# Sub-command to set welcome greeting
 	@checks.db
 	@checks.no_delete
-	@welcome.command(aliases=['message'])
-	async def setgreeting(self, ctx, *, format_msg = None):
+	@welcome.command(name='setgreeting', aliases=['setmessage', 'greeting', 'message'])
+	async def set_greeting(self, ctx, *, format_msg = None):
 		"""Sets the welcome message format for the server.
 		{0.name} is user. {1.name} is server"""
 		if format_msg is None:
@@ -92,8 +92,8 @@ class Welcome:
 
 		# Sub-command to toggle
 	@checks.db
-	@welcome.command()
-	async def toggle(self, ctx, enable: bool=None):
+	@welcome.command(name='toggle', aliases=['switch'])
+	async def _toggle(self, ctx, enable: bool=None):
 		"""Turns on/off welcoming new users to the server."""
 		guild = ctx.guild
 		async with ctx.con.transaction():
@@ -119,8 +119,8 @@ class Welcome:
 
 		# Sub-command to set welcome channel
 	@checks.db
-	@welcome.command()
-	async def setchannel(self, ctx, channel: discord.TextChannel=None):
+	@welcome.command(name='setchannel', aliases=['channel'])
+	async def set_channel(self, ctx, channel: discord.TextChannel=None):
 		"""Sets the channel for welcoming new users."""
 		guild = ctx.guild
 		channel = channel or ctx.channel
