@@ -21,7 +21,7 @@ class ROLES(Menus):
 		self.bot = bot
 		self.game_aliases = {
 			'Cards Against Humanity': ("CARDSAGAINSTHUMANITY", "CAH", "CARDS", "CARD"),
-			'Destiny 2': ("DESTINY2"),
+			'Destiny 2': ("DESTINY2", "DESTINY"),
 			'Dota 2': ("DOTA", "DOTATWO", "DOTA2"),
 			'Fortnite': ("FORTNITE", "BATTLEROYAL", "POORMANSPUBG"),
 			'Heroes of The Storm': ("HOTS", "HEROESOFTHESTORM"),
@@ -30,15 +30,16 @@ class ROLES(Menus):
 			'Overwatch': ("OVERWATCH", "OW"),
 			'Paladins': ("PALADINS"),
 			'PUBG': ("PUBG", "PLAYERUNKNOWNBATTLEGROUND", "PLAYERUNKNOWNBATTLEGROUNDS", "PLAYERUNKNOWN", "BATTLEGROUND"),
+			'Pickup Game': ("PUG", "PICKUP", "PICKUPGAME", "PICKUPGAMES"),
 			
-			'Asia': ("ASIA", "AS"),
-			'Europe': ("EUROPE", "EU", "EUR"),
-			'Australia': ("AUSTRALIA", "AUS"),
-			'Pacific Standard Time': ("PACIFIC", "PST", "PT", "PACIFICSTANDARDTIME"),
-			'Mountain Standard Time': ("MOUNTAIN", "MST", "MT", "MOUNTAINSTANDARDTIME"),
-			'Central Standard Time': ("CENTRAL", "CST", "CT", "CENTRALSTANDARDTIME"),
-			'Eastern Standard Time': ("EASTERN", "EAST", "EST", "ET", "EASTERNSTANDARDTIME"),
-			'Oceanic': ("OCEANIC", "OCE")
+			'Asia': ("ASIA"),
+			'Europe': ("EUROPE", "EU"),
+			'Australia': ("AUSTRALIA"),
+			'Pacific Standard Time': ("PACIFIC", "PACIFICSTANDARDTIME"),
+			'Mountain Standard Time': ("MOUNTAIN", "MOUNTAINSTANDARDTIME"),
+			'Central Standard Time': ("CENTRAL", "CENTRALSTANDARDTIME"),
+			'Eastern Standard Time': ("EASTERN", "EASTERNSTANDARDTIME"),
+			'Oceanic': ("OCEANIC")
 		}
 
 ###################
@@ -81,8 +82,15 @@ class ROLES(Menus):
 		await ctx.send(say_temps[int(changed)].format(role=role_name), delete_after=20)
 
 	@rolechannel()
-	@commands.group(invoke_without_command=True, aliases=['role'])
-	async def roles(self, ctx, *, game_name: str):
+	@commands.group(aliases=['role'])
+	async def roles(self, ctx):
+		"""Shows role module settings."""
+		if ctx.invoked_subcommand is None:
+			await self.bot.send_help(ctx)
+		
+	@rolechannel()
+	@roles.command(name='add', aliases=['give'])
+	async def assign(self, ctx, *, game_name: str):
 		"""Adds you to a specified game role."""
 		await self.game_role_helper(ctx, ctx.author, game_name, True)
 
@@ -106,14 +114,14 @@ class ROLES(Menus):
 		await emsg.edit(content=':white_check_mark: Removed **all** game roles.', delete_after=15)
 
 	@rolechannel()
-	@roles.command()
-	async def stop(self, ctx, *, game_name: str):
+	@roles.command(name='stop', aliases=['remove'])
+	async def unnasign(self, ctx, *, game_name: str):
 		"""Removes you from a specified game role."""
 		await self.game_role_helper(ctx, ctx.author, game_name, False)
 
 	@rolechannel()
-	@roles.command()
-	async def stopall(self, ctx):
+	@roles.command(name='stopall', aliases=['removeall'])
+	async def unassignall(self, ctx):
 		"""Remove all your game roles."""
 		await self.stop_all_helper(ctx, ctx.author)
 
@@ -126,11 +134,12 @@ class ROLES(Menus):
 	@rolechannel()
 	@roles.command(name='list')
 	async def list_roles(self, ctx):
+		"""Lists all of the game roles."""
 		roles = sorted(self.game_aliases.keys())
 		header = "**Game List**"
 		spacer = '-=-=-=--=-=-=--=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
 		key = f'{ARROWS[0]} Click to go back a page.\n{ARROWS[1]} Click to go forward a page.\n{CANCEL} Click to exit the list.'
-		info = wrap('To assign yourself one of these roles just use **!roles ``Game``**.', spacer, sep='\n')
+		info = wrap('To assign yourself one of these roles just use **!roles add ``Game``**.', spacer, sep='\n')
 		header = '\n'.join([header, key, info])
 		await self.reaction_menu(roles, ctx.author, ctx.channel, 0, per_page=20, timeout=120, code=False, header=header, return_from=roles)
 
