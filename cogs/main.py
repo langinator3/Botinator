@@ -51,7 +51,7 @@ class Main:
 		description = ctx.guild.created_at.strftime('Created on %B %d{} %Y')
 		day = ctx.guild.created_at.day
 		description = description.format("th" if 4 <= day % 100 <= 20 else
-										 {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th"))
+										{1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th"))
 		footer = f'{ctx.invoked_with.title()} ID: {ctx.guild.id}'
 		embed = discord.Embed(colour=discord.Colour(0xffffff), title=title, description=description)
 		embed.set_thumbnail(url=thumbnail)
