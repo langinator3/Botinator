@@ -17,33 +17,8 @@ def pin_check(m):
 class Utility:
 	def __init__(self, bot):
 		self.bot = bot
-		self.purge_task = self.bot.loop.create_task(self.purge())
 		self.log_ignore = ['pokemon', 'role-assigning', 'music', 'welcome', 'testing']
-		self.purge_ignore = ['logs']
 		self.attachment_cache = {}
-
-	def __unload(self):
-		self.purge_task.cancel()
-		
-		
-		
-	def get_role_muted(self, guild):
-		if guild is None:
-			return None
-		return discord.utils.get(guild.roles, name='MUTED🔇')
-
-###################
-#                 #
-# CLEANER         #
-#                 #
-###################
-
-	async def purge(self):
-		await self.bot.wait_until_ready()
-		channels = [chan for chan in self.bot.get_all_channels() if chan.name in ('role-assigning', 'music', 'pokemon','bot-spam')]
-		while not self.bot.is_closed():
-			await asyncio.gather(*[chan.purge(limit=300, check=pin_check) for chan in channels], loop=self.bot.loop)
-			await asyncio.sleep(3600, loop=self.bot.loop)
 
 ###################
 #                 #
@@ -57,7 +32,8 @@ class Utility:
 		return discord.utils.get(ctx.guild.channels, name='logs')
 
 	async def log(self, color, content, author, timestamp=None):
-		timestamp = timestamp or datetime.datetime.utcnow()
+		if timestamp is None:
+			timestamp = datetime.datetime.utcnow()
 		em = discord.Embed(colour=color, description=content, timestamp=timestamp)
 		em.set_author(name=str(author), icon_url=author.avatar_url)
 		try:
@@ -65,36 +41,51 @@ class Utility:
 		except AttributeError:
 			pass
 
+###################
+#                 #
+# MEMBER          #
+#                 #
+###################
+
 	async def on_member_join(self, member):
 		await self.log(discord.Colour(0x1bb27f), '**[USER JOIN]**', member)
 
 	async def on_member_remove(self, member):
 		await self.log(discord.Colour(0x5b0506), '**[USER LEAVE]**', member)
-		
+
+###################
+#                 #
+# MESSAGE         #
+#                 #
+###################
+
 	async def on_message_delete(self, message):
+		if message.content.startswith(self.bot.command_prefix):
+			return
 		if message.channel.name in self.log_ignore or await self.bot.is_command(message):
 			return
 		logging_channel = self.get_logging_channel(message)
 		content = message.content
-		if message.channel.id == logging_channel.id:
+		if message.author.bot and message.channel.id == logging_channel.id:
 			try:
 				em = message.embeds[0]
 			except:
 				em = None
 			await logging_channel.send(':x: **[LOG DELETED]**\n*{0}*\n{1}'.format(datetime.datetime.utcnow(), content), embed=em)
 		else:
-			try:
-				em = message.embeds[0]
-				content += '\n__*Embed message*__'
-			except:
-				pass
-			try:
-				attach = message.attachments[0]
-				content += '\n**Attachments:**\n{0.filename} {0.url}'.format(attach)
-			except:
-				pass
-			description = ':x: **[MESSAGE DELETED]**\n{0}\n{1}'.format(message.channel.mention, content)
-			await self.log(discord.Colour.red(), description, message.author)
+			if not message.author.bot:
+				try:
+					em = message.embeds[0]
+					content += '\n__*Embed message*__'
+				except:
+					pass
+				try:
+					attach = message.attachments[0]
+					content += '\n**Attachments:**\n{0.filename} {0.url}'.format(attach)
+				except:
+					pass
+				description = ':x: **[MESSAGE DELETED]**\n{0}\n{1}'.format(message.channel.mention, content)
+				await self.log(discord.Colour.red(), description, message.author)
 		if message.author.bot:
 			pass
 		
@@ -118,91 +109,6 @@ class Utility:
 			em.description = '**[MESSAGE EDITED]**\n{0.channel.mention}\n**OLD ⮞** {0.content}\n**NEW ⮞**' \
 								' {1.content}'.format(message, edit)
 			await logging_channel.send(embed=em)
-
-###################
-#                 #
-# PLONKING        #
-#                 #
-###################
-
-		# Blacklist Command
-	@checks.db
-	@checks.admin()
-	@commands.command(name='mute', aliases=['cuck', 'fuck', 'plonk'])
-	async def user_plonk(self, ctx, user: discord.Member, reason: str='being toxic'):
-		"""Adds a user to the bot's blacklist"""
-		try:
-			async with ctx.con.transaction():
-				await ctx.con.execute('''
-					INSERT INTO plonks (guild_id, user_id) VALUES ($1, $2)
-					''', ctx.guild.id, user.id)
-		except asyncpg.UniqueViolationError:
-			await ctx.send('**{0.name}** is already plonked.'.format(user),  delete_after=15)
-		else:
-			muted_role = self.get_role_muted(ctx.guild)
-			logging_channel = self.get_logging_channel(ctx.message)
-			if muted_role is not None:
-				await user.add_roles(muted_role)
-			await ctx.send('**{0.mention}** has been plonked.'.format(user))
-			await self.log(discord.Colour(0xFF5733), "Plonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
-
-
-			
-		# Unblacklist Command
-	@checks.db
-	@checks.admin()
-	@commands.command(name='unmute', aliases=['uncuck', 'unfuck', 'unplonk'])
-	async def user_unplonk(self, ctx, user: discord.Member, reason: str='appeal'):
-		"""Removes a user from the bot's blacklist"""
-		async with ctx.con.transaction():
-			res = await ctx.con.execute('''
-				DELETE FROM plonks WHERE guild_id = $1 and user_id = $2
-				''', ctx.guild.id, user.id)
-		deleted = int(res.split()[-1])
-		if deleted:
-			muted_role = self.get_role_muted(ctx.guild)
-			logging_channel = self.get_logging_channel(ctx.message)
-			if muted_role is not None:
-				await user.remove_roles(muted_role)
-			await ctx.send('**{0.mention}** is no longer plonked.'.format(user))
-			await self.log(discord.Colour(0x096b46), "Unplonked user {0.name}({0.id}) due to **{1}**.".format(user, reason), ctx.author)
-		else:
-			await ctx.send('**{0.name}** is not plonked.'.format(user),  delete_after=15)
-
-###################
-#                 #
-# CLEANUP         #
-#                 #
-###################
-
-		# Cleanup Messages Command
-	@commands.command(invoke_without_command=True, name='purge', aliases=['clean', 'cleanup', 'delete', 'del'])
-	@checks.mod_or_permissions(manage_messages=True)
-	async def messages_cleaner(self, ctx, number: int = 1, *, user: discord.Member = None):
-		"""Deletes last X messages [user]."""
-		if ctx.message.channel.name in self.purge_ignore and not ctx.message.author.id in config.owner_ids:
-			return
-		logging_channel = self.get_logging_channel(ctx.message)
-		if number < 1:
-			number = 1
-		elif isinstance(user, discord.Member):
-			def is_user(m):
-				return m.id == ctx.message.id or m.author == user
-			try:
-				await ctx.channel.purge(limit=number + 1, check=is_user)
-				await self.log(discord.Colour(0x6666CC), "{0.name}({0.id}) deleted {1} messages made by {2.name}({2.id}) in channel {3}".format(ctx.author, number, user, ctx.channel.mention), ctx.author)
-				return
-			except discord.errors.Forbidden:
-				await ctx.send('I need permissions to manage messages in this channel.',  delete_after=120)
-				return
-		elif isinstance(number, int):
-			try:
-				await ctx.channel.purge(limit=number + 1, check=pin_check)
-				await self.log(discord.Colour(0x6666CC), "{0.name}({0.id}) deleted {1} messages in channel {2}".format(ctx.author, number, ctx.channel.mention), ctx.author)
-				return
-			except discord.errors.Forbidden:
-				await ctx.send('I need permissions to manage messages in this channel.',  delete_after=120)
-
 
 ###################
 #                 #
@@ -274,9 +180,9 @@ class Utility:
 		up = datetime.timedelta(seconds=up)
 		await ctx.send(f'`Uptime: {up}`', delete_after=60)
 
-	@commands.command(invoke_without_command=True, name='userinfo' , aliases=['user', 'uinfo', 'info', 'ui'])
+	@commands.command(name='userinfo' , aliases=['user', 'uinfo', 'info', 'ui'])
 	async def user_info(self, ctx, *, name=""):
-		"""Get user info. Ex: [p]info @user"""
+		"""Get user info. Ex: `!info @user`"""
 		if name:
 			try:
 				user = ctx.message.mentions[0]
@@ -317,7 +223,17 @@ class Utility:
 		em.set_author(name=user, icon_url='https://i.imgur.com/RHagTDg.png')
 		await ctx.send(embed=em, delete_after=60)
 
-		await ctx.message.delete()
 		
+	@checks.no_delete
+	@commands.command(hidden=True)
+	async def ping(self, ctx):
+		"""Pings the bot"""
+		channel = ctx.message.channel
+		t1 = time.perf_counter()
+		await ctx.trigger_typing()
+		t2 = time.perf_counter()
+		embed=discord.Embed(title=None, description='Pong: {}'.format(round((t2-t1)*1000)), color=0x2874A6)
+		await ctx.send(embed=embed, delete_after=60)
+
 def setup(bot):
 	bot.add_cog(Utility(bot))
