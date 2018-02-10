@@ -297,7 +297,7 @@ class Exp(Menus):
 	@commands.command()
 	@commands.guild_only()
 	@checks.admin_or_permissions()
-	async def setmult(self, ctx, mult: str = None):
+	async def setmult(self, ctx, mult: str = 1):
 		"""Allows admins to change XP multiplier."""
 		if not mult.isdigit():
 			await ctx.send('Specify positive multiplier to set',  delete_after=15)
