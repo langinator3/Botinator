@@ -173,17 +173,14 @@ https://www.twitch.tv/langinator3!',
     PRIMARY KEY (guild_id, user_id)
 );
 
-CREATE TABLE roles (
-    guild_id bigint,
-    role_id bigint,
-    name text DEFAULT 'member',
-    requirement integer DEFAULT 0,
-    PRIMARY KEY (guild_id, role_id)
-);
-
 CREATE TABLE custom (
     guild_id bigint,
     command text DEFAULT 'help',
     output text DEFAULT 'Use **!c create** to create a custom command',
     PRIMARY KEY (guild_id, command)
+);
+
+CREATE TABLE roles (
+    name text PRIMARY KEY,
+    aliases text[] DEFAULT '{}'
 );
