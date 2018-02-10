@@ -32,14 +32,14 @@ class ROLES(Menus):
 			'PUBG': ("PUBG", "PLAYERUNKNOWNBATTLEGROUND", "PLAYERUNKNOWNBATTLEGROUNDS", "PLAYERUNKNOWN", "BATTLEGROUND"),
 			'Pickup Game': ("PUG", "PICKUP", "PICKUPGAME", "PICKUPGAMES"),
 			
-			'Asia': ("ASIA"),
-			'Europe': ("EUROPE", "EU"),
-			'Australia': ("AUSTRALIA"),
-			'Pacific Standard Time': ("PACIFIC", "PACIFICSTANDARDTIME"),
-			'Mountain Standard Time': ("MOUNTAIN", "MOUNTAINSTANDARDTIME"),
-			'Central Standard Time': ("CENTRAL", "CENTRALSTANDARDTIME"),
-			'Eastern Standard Time': ("EASTERN", "EASTERNSTANDARDTIME"),
-			'Oceanic': ("OCEANIC")
+			'Asia🥟': ("ASIA"),
+			'Europe🗼': ("EUROPE", "EU"),
+			'Australia🐀': ("AUSTRALIA"),
+			'PST🌊': ("PST", "PACIFIC", "PACIFICSTANDARDTIME"),
+			'MST⛰️': ("MST", "MOUNTAIN", "MOUNTAINSTANDARDTIME"),
+			'CST🎯': ("CST", "CENTRAL", "CENTRALSTANDARDTIME"),
+			'EST🗽🍁': ("EST", "EASTERN", "EASTERNSTANDARDTIME"),
+			'Oceanic🦈': ("OCEANIC")
 		}
 
 ###################
