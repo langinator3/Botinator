@@ -113,7 +113,7 @@ class BirbBot(commands.Bot):
 formatter = commands.HelpFormatter(show_check_failure=True)
 
 initial_extensions = [f'cogs.{ext}' for ext in
-					('main', 'fun', 'utility', 'exp', 'pokemon', 'music', 'roles', 'poll', 'welcome', 'help')]
+					('main', 'fun', 'utility', 'exp', 'pokemon', 'ow', 'music', 'roles', 'poll', 'mod', 'welcome', 'help')]
 
 #  Description
 description = 'Birb Bot - Created by Langinator3.'
@@ -121,6 +121,7 @@ description = 'Birb Bot - Created by Langinator3.'
 # Prefix
 bot = BirbBot(command_prefix=config.cmd_prefix, description=description, formatter=formatter, request_offline_members=True)
 bot.bot_prefix = config.bot_identifier
+bot.banned_words = config.banned_words
 bot.ready = False
 bot.db_pool = bot.loop.run_until_complete(asyncpg.create_pool(config.dsn, init=set_codecs))
 
