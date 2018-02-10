@@ -221,7 +221,7 @@ async def is_mythical(ctx, num):
 class Pokemon(Menus):
 	def __init__(self, bot):
 		self.bot = bot
-		self.image_path = 'data/pokemon/images/{}/{}-{}.gif'
+		self.image_path = 'http://pokebot.xyz/botdata/images/pokemon/{}/{}-{}.gif'
 
 ###################
 #                 #
@@ -341,8 +341,8 @@ class Pokemon(Menus):
 							  (f'\nUse a {balls[0]} to catch it!' if balls else ''))
 		embed.color = await get_pokemon_color(ctx, mon=mon)
 		embed.set_author(icon_url=ctx.author.avatar_url, name=player_name)
-		embed.set_image(url='attachment://pokemon.gif')
-		msg = await ctx.send(embed=embed, file=discord.File(self.image_path.format('normal', mon['num'], 0), filename='pokemon.gif'),  delete_after=60)
+		embed.set_image(url=self.image_path.format('normal', mon['num'], 0))
+		msg = await ctx.send(embed=embed,  delete_after=60)
 		await see(ctx, player_id, mon['num'])
 		can_react_with = [*balls, CANCEL]
 		for emoji in can_react_with:
@@ -465,8 +465,6 @@ class Pokemon(Menus):
 							  f"\n**ID:** {mon['num']}\n**Type:** {' & '.join(mon['type'])}"
 							  f"\n**Evolutions:**\n{evo}")
 		embed.color = await get_pokemon_color(ctx, mon=mon)
-		embed.set_image(url='attachment://pokemon.gif')
-
 		return embed
 
 	@checks.db
@@ -535,7 +533,8 @@ class Pokemon(Menus):
 			info = await get_pokemon(ctx, pokemon_number)
 			image = self.image_path.format('normal', info['num'], 0)
 		embed = await self.get_pokedex_embed(ctx, info)
-		await ctx.send(embed=embed, file=discord.File(image, filename='pokemon.gif'), delete_after=120)
+		embed.set_image(url=image)
+		await ctx.send(embed=embed, delete_after=120)
 
 	@checks.db
 	@pokedex.command(name='shiny')
@@ -570,7 +569,8 @@ class Pokemon(Menus):
 			info = await get_pokemon(ctx, pokemon_number)
 			image = self.image_path.format('shiny', info['num'], 0)
 		embed = await self.get_pokedex_embed(ctx, info, shiny=True)
-		await ctx.send(embed=embed, file=discord.File(image, filename='pokemon.gif'), delete_after=120)
+		embed.set_image(url=image)
+		await ctx.send(embed=embed, delete_after=120)
 
 ###################
 #                 #
